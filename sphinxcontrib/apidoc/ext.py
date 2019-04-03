@@ -13,6 +13,8 @@ from os import path
 import sphinx
 from sphinx.util import logging
 
+from . import templating
+
 try:
     from sphinx.ext import apidoc  # Sphinx >= 1.7
     _ignore_first_arg = False
@@ -36,6 +38,7 @@ def builder_inited(app):
     toc_file = app.config.apidoc_toc_file
     module_first = app.config.apidoc_module_first
     extra_args = app.config.apidoc_extra_args
+    templates = app.config.apidoc_templates
 
     if toc_file and sphinx.version_info < (1, 8, 0):
         logger.warning("'apidoc_toc_file' is only supported by Sphinx "
@@ -89,4 +92,20 @@ def builder_inited(app):
         for exc in excludes:
             yield path.abspath(path.join(module_dir, exc))
 
-    apidoc.main(list(cmd_opts()))
+    if templates:
+        excludes = [
+            path.abspath(path.join(module_dir, exc)) for exc in excludes
+        ]
+        opts = templating.Options(destdir=output_dir,
+                                  templates=templates,
+                                  toc_file=toc_file,
+                                  separatemodules=separate_modules,
+                                  force=True,
+                                  modulefirst=module_first)
+        if extra_args:
+            logger.warning(
+                "apidoc_extra_args are ignored for API generation with "
+                "templates")
+        templating.main(app, module_dir, output_dir, excludes, opts)
+    else:
+        apidoc.main(list(cmd_opts()))

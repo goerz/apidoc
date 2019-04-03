@@ -21,7 +21,7 @@ if False:
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[unicode, Any]
+    # type: (Sphinx) -> Dict
     app.setup_extension('sphinx.ext.autodoc')  # We need autodoc to function
 
     app.connect('builder-inited', ext.builder_inited)
@@ -32,5 +32,6 @@ def setup(app):
     app.add_config_value('apidoc_toc_file', None, 'env', [str, bool])
     app.add_config_value('apidoc_module_first', False, 'env', [bool])
     app.add_config_value('apidoc_extra_args', [], 'env', [list])
+    app.add_config_value('apidoc_templates', None, 'env', [str])
 
     return {'version': __version__, 'parallel_read_safe': True}
